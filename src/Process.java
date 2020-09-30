@@ -315,38 +315,4 @@ public class Process {
         return r1.containsAll(r2);//containsAll
     }
 
-    public static void main(String[] args){
-
-        //LTS lts = new LTS();
-        Process process = new Process();
-        BufferedReader file = null;
-        try {
-
-            file = new BufferedReader(new FileReader(args[0]));
-
-        }catch (FileNotFoundException fnfe){
-
-            System.out.println("File cannot be found");
-            System.exit(1);
-
-        }
-        try {
-
-            ArrayList<String> LTSList = process.storeFileIntoArray(file);
-            Set<Transition> transitions = process.collectTransitions(LTSList);
-            Set<String> actions = process.collectActions(LTSList);
-            Set<String> states = process.collectStates(LTSList);
-            //successfully storing data in to the LTS class object
-            process.setTransitions(transitions);
-            process.setActions(actions);
-            process.setStates(states);
-
-        }catch (IOException io){
-            System.out.println("Data store error");
-        }
-        Set<String> relations = process.computeBisimulation(process);
-        for (String data: relations){
-            System.out.println(data);
-        }
-    }
 }

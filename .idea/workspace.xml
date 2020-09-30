@@ -2,6 +2,7 @@
 <project version="4">
   <component name="ChangeListManager">
     <list default="true" id="d5e419ed-5c70-4318-9f53-d19560b9a269" name="Default Changelist" comment="">
+      <change afterPath="$PROJECT_DIR$/src/BGame.java" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/src/Process.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/Process.java" afterDir="false" />
     </list>
@@ -49,7 +50,7 @@
       <option name="number" value="Default" />
       <option name="presentableId" value="Default" />
       <updated>1601483965701</updated>
-      <workItem from="1601483968081" duration="4365000" />
+      <workItem from="1601483968081" duration="5155000" />
     </task>
     <task id="LOCAL-00001" summary="Recoding the old systems">
       <created>1601486191536</created>
@@ -58,7 +59,14 @@
       <option name="project" value="LOCAL" />
       <updated>1601486191536</updated>
     </task>
-    <option name="localTasksCounter" value="2" />
+    <task id="LOCAL-00002" summary="Recoding the old systems">
+      <created>1601494937699</created>
+      <option name="number" value="00002" />
+      <option name="presentableId" value="LOCAL-00002" />
+      <option name="project" value="LOCAL" />
+      <updated>1601494937699</updated>
+    </task>
+    <option name="localTasksCounter" value="3" />
     <servers />
   </component>
   <component name="TypeScriptGeneratedFilesManager">
@@ -69,14 +77,14 @@
     <option name="LAST_COMMIT_MESSAGE" value="Recoding the old systems" />
   </component>
   <component name="WindowStateProjectService">
-    <state x="330" y="51" key="CommitChangelistDialog2" timestamp="1601486189764">
+    <state x="330" y="51" key="CommitChangelistDialog2" timestamp="1601494936109">
       <screen x="0" y="0" width="1440" height="920" />
     </state>
-    <state x="330" y="51" key="CommitChangelistDialog2/0.0.1440.920@0.0.1440.920" timestamp="1601486189764" />
-    <state x="313" y="194" key="Vcs.Push.Dialog.v2" timestamp="1601486194381">
+    <state x="330" y="51" key="CommitChangelistDialog2/0.0.1440.920@0.0.1440.920" timestamp="1601494936109" />
+    <state x="313" y="194" key="Vcs.Push.Dialog.v2" timestamp="1601494939338">
       <screen x="0" y="0" width="1440" height="920" />
     </state>
-    <state x="313" y="194" key="Vcs.Push.Dialog.v2/0.0.1440.920@0.0.1440.920" timestamp="1601486194381" />
+    <state x="313" y="194" key="Vcs.Push.Dialog.v2/0.0.1440.920@0.0.1440.920" timestamp="1601494939338" />
     <state x="517" y="378" key="com.intellij.openapi.vcs.update.UpdateOrStatusOptionsDialogupdate-v2" timestamp="1601486160834">
       <screen x="0" y="0" width="1440" height="920" />
     </state>
