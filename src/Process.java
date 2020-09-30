@@ -1,3 +1,9 @@
+import java.io.BufferedReader;
+import java.io.FileNotFoundException;
+import java.io.FileReader;
+import java.io.IOException;
+import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.HashSet;
 import java.util.Set;
 
@@ -42,27 +48,113 @@ public class Process {
         this.actions = actions;
     }
 
+    public ArrayList<String> storeFileIntoArray(BufferedReader file) throws IOException {
+
+        String s;
+        String ss = "";
+        String[] transitions;
+        ArrayList<String> LTSList = new ArrayList<>();
+        while ((s = file.readLine())!= null){
+
+            ss = ss+s;
+
+        }
+        //System.out.println(ss);
+        transitions = ss.split("\\|");
+        LTSList.addAll(Arrays.asList(transitions));
+        /*for (String data : LTSList) {
+
+            System.out.println(data);
+
+        }*/
+        return LTSList;
+
+    }
+
+    public Set<Transition> collectTransitions(ArrayList<String> LTSList){
+
+        Set<Transition> transitions = new HashSet<>();
+        for (String data : LTSList) {
+
+            data = data.substring(1,data.length());
+            data = data.substring(0,data.length()-1);
+            String[] elements = data.split(",");
+            Transition newTransition = new Transition();
+            newTransition.setSource(elements[0]);
+            newTransition.setAction(elements[1]);
+            newTransition.setDestination(elements[2]);
+            transitions.add(newTransition);
+
+        }/*
+        for (Transition data:transitions){
+
+            System.out.println(data.toString());
+
+        }*/
+        return transitions;
+
+    }
+
+    public Set<String> collectActions(ArrayList<String> LTSList){
+
+        Set<String> actions = new HashSet<>();
+        for (String data : LTSList) {
+
+            data = data.substring(1,data.length());
+            data = data.substring(0,data.length()-1);
+            String[] elements = data.split(",");
+            actions.add(elements[1]);
+
+        }
+        for (String data : actions){
+            //System.out.println(data);
+        }
+        return actions;
+
+
+    }
+
+    public Set<String> collectStates(ArrayList<String> LTSList){
+
+        Set<String> states = new HashSet<>();
+        for (String data : LTSList) {
+
+            data = data.substring(1,data.length());
+            data = data.substring(0,data.length()-1);
+            String[] elements = data.split(",");
+            states.add(elements[0]);
+            states.add(elements[2]);
+
+        }
+        /*
+        for (String data : states){
+            System.out.println(data);
+        }*/
+        return states;
+
+
+    }
+
     //get the bisimulation relation after computing the process
-    public Set<String> computeBisimulation2(Process process){
+    public Set<String> computeBisimulation(Process process){
         Set<String> R = getR0(process.getStates()); //R0 set that won't change data of it
-        Set<String> actions = process.getActions();
-        Set<Transition> transitions = process.getTransitions();
-        Set<String> states = process.getStates();
         Set<String> R0 = new HashSet<>(R);
         while (true){
-            Set<String> R1 = getResults(actions,transitions,R,R0);
+            //Set<String> R1 = getResults(actions,transitions,R,R0);
+            Set<String> R1 = getResults(process,R0);
             if (R1.containsAll(R0)){
                 return R1;
             }else {
                 R0.clear();
                 R0.addAll(R1);
-
             }
         }
     }
 
     //calculate the relation set once
-    public Set<String> getResults(Set<String> actions, Set<Transition> transitions, Set<String> R, Set<String> R0){
+    public Set<String> getResults(Process process, Set<String> R0){
+        Set<String> R = getR0(process.getStates()); //R0 set that won't change data of it
+        //Set<Transition> transitions = process.getTransitions();
         Set<String> R1 = new HashSet<>();
         Set<String> states = new HashSet<>();
         //get all states from LTS
@@ -73,7 +165,8 @@ public class Process {
         }
         for (String x:states){
             for (String x_prime:states){
-                if(searchRelationPlus(x,x_prime,R,R0,transitions)&&searchRelationPlus(x_prime,x,R,R0,transitions)){
+                //if(searchRelationFromR(x,x_prime,R,R0,transitions)&&searchRelationFromR(x_prime,x,R,R0,transitions)){
+                if(searchRelationFromR(x,x_prime,process,R0)&&searchRelationFromR(x_prime,x,process,R0)){
                     String relation = x + "," + x_prime;
                     R1.add(relation);
                 }
@@ -84,34 +177,27 @@ public class Process {
     }
 
     //get the result of search x,x',R0
-    public boolean searchRelationPlus(String x, String x_prime, Set<String> R, Set<String> R0, Set<Transition> transitions){
-
-        Set<String> states = new HashSet<>();
-        //get all states from R
-        for (String relation: R){
-            String[] elements = relation.split(",");
-            states.add(elements[0]);
-            states.add(elements[1]);
-        }
+    public boolean searchRelationFromR(String x, String x_prime, Process process, Set<String> R0){
+        Set<Transition> transitions = process.getTransitions();
+        Set<String> actions = process.getActions();
         Set<Transition> possible_transitions = new HashSet<>();
         //get all possible transitions started from x
-        //all possible states from the possible transition
-        Set<String> possible_states = new HashSet<>();
+        //get all possible targets from the possible transition
+        Set<String> possible_targets = new HashSet<>();
         for (Transition transition: transitions){
             String source = transition.getSource();
             if (source.equals(x)){
                 possible_transitions.add(transition);
                 //get possible targets
-                possible_states.add(transition.getDestination());
+                possible_targets.add(transition.getDestination());
             }
         }
         if (possible_transitions.size() == 0){
             return true;
         }
-
         Set<Boolean> resultSet = new HashSet<>();
         Set<Integer> possible_results = new HashSet<>();
-        for (String y: possible_states){
+        for (String y: possible_targets){
             for (String a: actions){
                 //if find x-a-y
                 if (searchActionDestination(a,y,transitions)){
@@ -132,7 +218,6 @@ public class Process {
                         possible_results.add(0);
                         for (String y_prime : possible_target) {
                             String y_y_prime = y + "," + y_prime;
-
                             if (searchRelation(y_y_prime, R0)) {
                                 resultSet.add(true);
                             }
@@ -149,6 +234,7 @@ public class Process {
         return false;
     }
 
+    //get the initial R set
     public Set<String> getR0(Set<String> states){
         Set<String> R0 = new HashSet<>();
         for (String x: states){
@@ -160,6 +246,7 @@ public class Process {
         return R0;
     }
 
+    //check whether we can find a transition from the transition set or not
     public boolean searchTransition(Transition transition, Set<Transition> transitions){
         boolean result = false;
         for (Transition data: transitions){
@@ -171,6 +258,7 @@ public class Process {
         return result;
     }
 
+    //check whether we can find a transition with action a and target y from the transition set or not
     public boolean searchActionDestination(String a, String y, Set<Transition> transitions){
         boolean result = false;
         for (Transition data: transitions){
@@ -182,6 +270,7 @@ public class Process {
         return result;
     }
 
+    //check whether we can find a relation from the relation set or not
     public boolean searchRelation(String relation, Set<String> relations){
         boolean result = false;
         for (String data: relations){
@@ -191,6 +280,8 @@ public class Process {
         }
         return result;
     }
+
+    //check whether we can find a state from the state array or not
     public boolean searchStates(String x, String[] xArray){
         for (String data: xArray){
             if (x.equals(data)){
@@ -200,6 +291,7 @@ public class Process {
         return false;
     }
 
+    //check whether the pair of states has a target or not
     public boolean checkIfStatesHaveNoTarget(Process process, String x){
         String[] states = x.split(",");
         Set<Transition> transitions = process.getTransitions();
@@ -211,6 +303,7 @@ public class Process {
         return true;
     }
 
+    //check whether the two relation sets are the same
     public boolean compareRelations(Set<String> r1,Set<String> r2){
         if(r1 == null && r2 ==null){//compare empty sets
             return true;
@@ -220,5 +313,40 @@ public class Process {
             return false;
         }
         return r1.containsAll(r2);//containsAll
+    }
+
+    public static void main(String[] args){
+
+        //LTS lts = new LTS();
+        Process process = new Process();
+        BufferedReader file = null;
+        try {
+
+            file = new BufferedReader(new FileReader(args[0]));
+
+        }catch (FileNotFoundException fnfe){
+
+            System.out.println("File cannot be found");
+            System.exit(1);
+
+        }
+        try {
+
+            ArrayList<String> LTSList = process.storeFileIntoArray(file);
+            Set<Transition> transitions = process.collectTransitions(LTSList);
+            Set<String> actions = process.collectActions(LTSList);
+            Set<String> states = process.collectStates(LTSList);
+            //successfully storing data in to the LTS class object
+            process.setTransitions(transitions);
+            process.setActions(actions);
+            process.setStates(states);
+
+        }catch (IOException io){
+            System.out.println("Data store error");
+        }
+        Set<String> relations = process.computeBisimulation(process);
+        for (String data: relations){
+            System.out.println(data);
+        }
     }
 }
