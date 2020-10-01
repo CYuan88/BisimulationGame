@@ -50,14 +50,56 @@ public class BGame extends Process{
             if (process.searchRelation(userPick1,relations)){
                 //if the two states are bisimilar
                 System.out.println("Unfortunately, you lose the game! ");
-                //Initial the goneState set, for now, it is empty
-                Set<String> goneState = new HashSet<>();
-                continueFailedGame(userPick1,goneState);
+                System.out.println("If you want to continue to see how you lose the game, please type c/C!");
+                System.out.println("If you want to choose another pair of start states, please type r/R!");
+                System.out.println("If you want to change another LTS, please type q/Q to quit the game!");
+                Scanner sc = new Scanner(System.in);
+                String userChoice = sc.nextLine();
+                switch (userChoice) {
+                    case "c":
+                    case "C":
+                        //Initial the goneState set, for now, it is empty
+                        Set<String> goneState = new HashSet<>();
+                        continueFailedGame(userPick1, goneState);
+                        break;
+                    case "r":
+                    case "R":
+                        startGame(process);
+                        break;
+                    case "q":
+                    case "Q":
+                        return;
+                    default:
+                        System.out.println("Please input a correct Character! Game will restart automatically!");
+                        startGame(process);
+                        break;
+                }
 
             }else {
                 //if not
                 System.out.println("Congratulations, you win the game! ");
-                continueWinedGame(userPick1);
+                System.out.println("If you want to continue to see how you win the game, please type c/C!");
+                System.out.println("If you want to choose another pair of start states, please type r/R!");
+                System.out.println("If you want to change another LTS, please type q/Q to quit the game!");
+                Scanner sc = new Scanner(System.in);
+                String userChoice = sc.nextLine();
+                switch (userChoice) {
+                    case "c":
+                    case "C":
+                        continueWinedGame(userPick1);
+                        break;
+                    case "r":
+                    case "R":
+                        startGame(process);
+                        break;
+                    case "q":
+                    case "Q":
+                        return;
+                    default:
+                        System.out.println("Please input a correct Character! Game will restart automatically!");
+                        startGame(process);
+                        break;
+                }
             }
         }catch (ArrayIndexOutOfBoundsException aiofbe){
             System.out.println("Please enter two states in format (x,x')!");
@@ -199,7 +241,7 @@ public class BGame extends Process{
             Set<Transition> toolPickTransitionPossi = toolPlayWinedGame(states,userPickTransition);
             if (toolPickTransitionPossi.size() == 0){
                 String toolSource = states.replaceAll(",","");
-                toolSource = toolSource.replaceAll(userPickTransition.getSource(),"");
+                toolSource = toolSource.replaceFirst(userPickTransition.getSource(),"");
                 System.out.println("There is no step that tool can do from " + toolSource +"! That's why you win the game!" );
                 return;
             }
@@ -228,11 +270,11 @@ public class BGame extends Process{
     //1.pick the transition with same action that attacker picks
     public Set<Transition> toolPlayWinedGame(String states, Transition userPickTransition){
         states = states.replaceAll(",","");
-        String toolSource = states.replace(userPickTransition.getSource(),"");
+        String toolSource = states.replaceFirst(userPickTransition.getSource(),"");
         //Set<String> toolTarget = new HashSet<>();
         Set<Transition> toolTransition = new HashSet<>();
         for (Transition transition: this.getTransitions()){
-            if (transition.getSource().equals(toolSource)&&transition.getAction().equals(userPickTransition)){
+            if (transition.getSource().equals(toolSource)&&transition.getAction().equals(userPickTransition.getAction())){
                 //toolTarget.add(transition.getDestination());
                 toolTransition.add(transition);
             }

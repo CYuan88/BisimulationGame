@@ -193,8 +193,6 @@ public class Process {
         if (possible_transitions.size() == 0){
             return true;
         }
-        //Set<Boolean> resultSet = new HashSet<>();
-        //Set<Integer> possible_results = new HashSet<>();
         for (String y: possible_targets){
             for (String a: actions){
                 //if find x-a-y
@@ -212,17 +210,6 @@ public class Process {
                             possible_target.add(transition.getDestination());
                         }
                     }
-                    /*if (possible_target.size() != 0) {
-                        possible_results.add(0);
-                        for (String y_prime : possible_target) {
-                            String y_y_prime = y + "," + y_prime;
-                            if (searchRelation(y_y_prime, R0)) {
-                                resultSet.add(true);
-                            }
-                        }
-                    }else {
-                        return false;
-                    }*/
                     if (possible_target.size() == 0){
                         return false;
                     }else {
@@ -237,9 +224,6 @@ public class Process {
                 }
             }
         }
-        //if (resultSet.size()!=0 &&resultSet.size() == possible_results.size()){
-        //    return true;
-        //}
         return false;
     }
 
