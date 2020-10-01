@@ -50,7 +50,9 @@ public class BGame extends Process{
             if (process.searchRelation(userPick1,relations)){
                 //if the two states are bisimilar
                 System.out.println("Unfortunately, you lose the game! ");
-                continueFailedGame(userPick1);
+                //Initial the goneState set, for now, it is empty
+                Set<String> goneState = new HashSet<>();
+                continueFailedGame(userPick1,goneState);
 
             }else {
                 //if not
@@ -63,12 +65,17 @@ public class BGame extends Process{
         }
     }
 
-    public void continueFailedGame(String states){
+    public void continueFailedGame(String states,Set<String> goneState){
         String[] startStates = states.split(",");
         //check if attacker already lose the game or not
         if (this.checkIfStatesHaveNoTarget(this,states)){
             //if have no target
             System.out.println("There is no step that you can do from "+ states +"! That's why you lose the game!");
+            return;
+        }
+        if (goneState.containsAll(this.getStates())){
+            //if all the states are picked once
+            System.out.println("All the states of the LTS have been picked once! That's why you lose the game!");
             return;
         }
         System.out.println("Pick one transition start from "+ states + " (source,action,target):");
@@ -79,12 +86,12 @@ public class BGame extends Process{
             Transition userPickTransition = new Transition(userPickElements[0],userPickElements[2],userPickElements[1]);
             if (!searchStartStates(userPickElements[0],startStates)){
                 System.out.println("The source "+userPickElements[0]+"of transition is not one of the start states on this step!");
-                continueFailedGame(states);
+                continueFailedGame(states,goneState);
                 return;
             }
             if (!searchTransition(userPickTransition,this.getTransitions())){
                 System.out.println("Transition "+userPick2+" is not the transition of this LTS!");
-                continueFailedGame(states);
+                continueFailedGame(states,goneState);
                 return;
             }
             Set<Transition> toolPickTransitionPossi = toolPlayFailedGame(states,userPickTransition);
@@ -98,7 +105,10 @@ public class BGame extends Process{
                     System.out.println(transition.toString());
                 }
                 String next_states = userPickTransition.getDestination()+","+toolPickTransition.getDestination();
-                continueFailedGame(next_states);
+                //update the data in goneState set
+                goneState.add(userPickTransition.getDestination());
+                goneState.add(toolPickTransition.getDestination());
+                continueFailedGame(next_states,goneState);
                 return;
             }
             if (toolPickTransitionPossi.size() > 1){
@@ -112,7 +122,10 @@ public class BGame extends Process{
                 for (Transition toolPickTransition:toolPickTransitionPossi){
                     String next_states = userPickTransition.getDestination()+","+toolPickTransition.getDestination();
                     System.out.println("Situation"+i+" : Tool picks "+toolPickTransition.toString());
-                    continueFailedGame(next_states);
+                    //update the data in goneState set
+                    goneState.add(userPickTransition.getDestination());
+                    goneState.add(toolPickTransition.getDestination());
+                    continueFailedGame(next_states,goneState);
                     i++;
                 }
                 return;
@@ -120,7 +133,7 @@ public class BGame extends Process{
 
         }catch (ArrayIndexOutOfBoundsException aiofbe){
             System.out.println("Please enter a transition in format (x,a,x')!");
-            continueFailedGame(states);
+            continueFailedGame(states,goneState);
         }
     }
 
@@ -177,6 +190,16 @@ public class BGame extends Process{
             for (Transition transition:toolPickTransitionPossi){
                 System.out.println(transition.toString());
             }
+            System.out.println("Let's see the following possibilities from states "+states);
+            //do each possibility of toolPickTransition
+            int i = 0; //counter
+            for (Transition toolPickTransition:toolPickTransitionPossi){
+                String next_states = userPickTransition.getDestination()+","+toolPickTransition.getDestination();
+                System.out.println("Situation"+i+" : Tool picks "+toolPickTransition.toString());
+                continueWinedGame(next_states);
+                i++;
+            }
+
 
         }catch (ArrayIndexOutOfBoundsException aiofbe){
             System.out.println("Please enter a transition in format (x,a,x')!");

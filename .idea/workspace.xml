@@ -4,7 +4,6 @@
     <list default="true" id="d5e419ed-5c70-4318-9f53-d19560b9a269" name="Default Changelist" comment="">
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/src/BGame.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/BGame.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/Process.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/Process.java" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
@@ -51,7 +50,7 @@
       <option name="presentableId" value="Default" />
       <updated>1601483965701</updated>
       <workItem from="1601483968081" duration="5709000" />
-      <workItem from="1601534684078" duration="15275000" />
+      <workItem from="1601534684078" duration="16893000" />
     </task>
     <task id="LOCAL-00001" summary="Recoding the old systems">
       <created>1601486191536</created>
@@ -74,7 +73,14 @@
       <option name="project" value="LOCAL" />
       <updated>1601495792102</updated>
     </task>
-    <option name="localTasksCounter" value="4" />
+    <task id="LOCAL-00004" summary="Complete the fail strategy">
+      <created>1601563905831</created>
+      <option name="number" value="00004" />
+      <option name="presentableId" value="LOCAL-00004" />
+      <option name="project" value="LOCAL" />
+      <updated>1601563905831</updated>
+    </task>
+    <option name="localTasksCounter" value="5" />
     <servers />
   </component>
   <component name="TypeScriptGeneratedFilesManager">
@@ -83,25 +89,26 @@
   <component name="VcsManagerConfiguration">
     <MESSAGE value="Recoding the old systems" />
     <MESSAGE value="Add the BGame class" />
-    <option name="LAST_COMMIT_MESSAGE" value="Add the BGame class" />
+    <MESSAGE value="Complete the fail strategy" />
+    <option name="LAST_COMMIT_MESSAGE" value="Complete the fail strategy" />
   </component>
   <component name="WindowStateProjectService">
     <state x="526" y="145" key="#com.intellij.ide.util.MemberChooser" timestamp="1601543166960">
       <screen x="0" y="0" width="1440" height="920" />
     </state>
     <state x="526" y="145" key="#com.intellij.ide.util.MemberChooser/0.0.1440.920@0.0.1440.920" timestamp="1601543166960" />
-    <state x="330" y="51" key="CommitChangelistDialog2" timestamp="1601495790525">
+    <state x="330" y="51" key="CommitChangelistDialog2" timestamp="1601563904158">
       <screen x="0" y="0" width="1440" height="920" />
     </state>
-    <state x="330" y="51" key="CommitChangelistDialog2/0.0.1440.920@0.0.1440.920" timestamp="1601495790525" />
+    <state x="330" y="51" key="CommitChangelistDialog2/0.0.1440.920@0.0.1440.920" timestamp="1601563904158" />
     <state x="501" y="216" key="FileChooserDialogImpl" timestamp="1601535698795">
       <screen x="0" y="0" width="1440" height="920" />
     </state>
     <state x="501" y="216" key="FileChooserDialogImpl/0.0.1440.920@0.0.1440.920" timestamp="1601535698795" />
-    <state x="313" y="194" key="Vcs.Push.Dialog.v2" timestamp="1601495793601">
+    <state x="313" y="194" key="Vcs.Push.Dialog.v2" timestamp="1601563907626">
       <screen x="0" y="0" width="1440" height="920" />
     </state>
-    <state x="313" y="194" key="Vcs.Push.Dialog.v2/0.0.1440.920@0.0.1440.920" timestamp="1601495793601" />
+    <state x="313" y="194" key="Vcs.Push.Dialog.v2/0.0.1440.920@0.0.1440.920" timestamp="1601563907626" />
     <state x="405" y="285" key="com.intellij.ide.util.TipDialog" timestamp="1601534711364">
       <screen x="0" y="0" width="1440" height="920" />
     </state>
