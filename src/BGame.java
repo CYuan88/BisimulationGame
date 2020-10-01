@@ -73,7 +73,7 @@ public class BGame extends Process{
             System.out.println("There is no step that you can do from "+ states +"! That's why you lose the game!");
             return;
         }
-        if (goneState.containsAll(this.getStates())){
+        if (compareStates(goneState,this.getStates())){
             //if all the states are picked once
             System.out.println("All the states of the LTS have been picked once! That's why you lose the game!");
             return;
@@ -96,6 +96,9 @@ public class BGame extends Process{
             }
             Set<Transition> toolPickTransitionPossi = toolPlayFailedGame(states,userPickTransition);
             //make a check of two situations
+            if (toolPickTransitionPossi.size() ==0){
+                System.out.println("There is a logical mistake in the game! Please check the algorithm!");
+            }
             if (toolPickTransitionPossi.size() == 1){
                 //get the first element of toolTransitionPossibility
                 Iterator it = toolPickTransitionPossi.iterator();
@@ -106,6 +109,8 @@ public class BGame extends Process{
                 }
                 String next_states = userPickTransition.getDestination()+","+toolPickTransition.getDestination();
                 //update the data in goneState set
+                goneState.add(userPickTransition.getSource());
+                goneState.add(toolPickTransition.getSource());
                 goneState.add(userPickTransition.getDestination());
                 goneState.add(toolPickTransition.getDestination());
                 continueFailedGame(next_states,goneState);
@@ -123,6 +128,8 @@ public class BGame extends Process{
                     String next_states = userPickTransition.getDestination()+","+toolPickTransition.getDestination();
                     System.out.println("Situation"+i+" : Tool picks "+toolPickTransition.toString());
                     //update the data in goneState set
+                    goneState.add(userPickTransition.getSource());
+                    goneState.add(toolPickTransition.getSource());
                     goneState.add(userPickTransition.getDestination());
                     goneState.add(toolPickTransition.getDestination());
                     continueFailedGame(next_states,goneState);
@@ -145,7 +152,8 @@ public class BGame extends Process{
         //get all possible y' from the bisimulation relation set
         for (String relation : relations){
             relation = relation.replaceAll(",","");
-            relation = relation.replaceAll(userPickTransition.getDestination(),"");
+            //only replace one state if the targets are the same
+            relation = relation.replaceFirst(userPickTransition.getDestination(),"");
             toolTarget.add(relation);
         }
         //get all possible x',a,y'

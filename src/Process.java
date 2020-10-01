@@ -334,6 +334,19 @@ public class Process {
         return r1.containsAll(r2);//containsAll
     }
 
+    //check whether two states set are the same
+    public boolean compareStates(Set<String> states1, Set<String> states2){
+        if (states1.size()!=states2.size()){
+            return false;
+        }
+        for (String data1 : states1){
+            if (!states2.contains(data1)){
+                return false;
+            }
+        }
+        return true;
+    }
+
 
 
 }
