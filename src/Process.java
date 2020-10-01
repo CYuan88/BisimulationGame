@@ -1,6 +1,4 @@
 import java.io.BufferedReader;
-import java.io.FileNotFoundException;
-import java.io.FileReader;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -195,8 +193,8 @@ public class Process {
         if (possible_transitions.size() == 0){
             return true;
         }
-        Set<Boolean> resultSet = new HashSet<>();
-        Set<Integer> possible_results = new HashSet<>();
+        //Set<Boolean> resultSet = new HashSet<>();
+        //Set<Integer> possible_results = new HashSet<>();
         for (String y: possible_targets){
             for (String a: actions){
                 //if find x-a-y
@@ -214,7 +212,7 @@ public class Process {
                             possible_target.add(transition.getDestination());
                         }
                     }
-                    if (possible_target.size() != 0) {
+                    /*if (possible_target.size() != 0) {
                         possible_results.add(0);
                         for (String y_prime : possible_target) {
                             String y_y_prime = y + "," + y_prime;
@@ -224,13 +222,24 @@ public class Process {
                         }
                     }else {
                         return false;
+                    }*/
+                    if (possible_target.size() == 0){
+                        return false;
+                    }else {
+                        for (String y_prime: possible_target){
+                            String y_y_prime = y + "," + y_prime;
+                            if (!searchRelation(y_y_prime, R0)) {
+                                return false;
+                            }
+                        }
+                        return true;
                     }
                 }
             }
         }
-        if (resultSet.size()!=0 &&resultSet.size() == possible_results.size()){
-            return true;
-        }
+        //if (resultSet.size()!=0 &&resultSet.size() == possible_results.size()){
+        //    return true;
+        //}
         return false;
     }
 
@@ -282,7 +291,17 @@ public class Process {
     }
 
     //check whether we can find a state from the state array or not
-    public boolean searchStates(String x, String[] xArray){
+    public boolean searchStates(String x, Set<String> xSet){
+        for (String data: xSet){
+            if (x.equals(data)){
+                return true;
+            }
+        }
+        return false;
+    }
+
+    //search startStates
+    public boolean searchStartStates(String x, String[] xArray){
         for (String data: xArray){
             if (x.equals(data)){
                 return true;
@@ -314,5 +333,7 @@ public class Process {
         }
         return r1.containsAll(r2);//containsAll
     }
+
+
 
 }

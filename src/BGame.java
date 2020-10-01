@@ -15,191 +15,189 @@ public class BGame extends Process{
         this.relations = relations;
     }
     public BGame(Process process, Set<String> relations){
-        new BGame(process.getTransitions(),process.getStates(),process.getActions(),relations);
+        this(process.getTransitions(),process.getStates(),process.getActions(),relations);
+    }
+
+    public Set<String> getRelations() {
+        return relations;
+    }
+
+    public void setRelations(Set<String> relations) {
+        this.relations = relations;
     }
 
     public void startGame(Process process){
-        //get the bisimulation relation of process
-        Set<String> relations = process.computeBisimulation(process);
-        for (String relation:relations){
-            System.out.println(relation);
-        }
-        System.out.println("Processing game...");
-        System.out.println("Game Start: Here are the transitions:");
-        System.out.println("Source   Action    Target(States labeled with 1 are the starting states.)");
-        for (Transition transition : process.getTransitions()){
-            System.out.println(transition.toString());
-        }
         //ask user to pick a pair of states to start the game (should not choose the same states)
         System.out.println("pick a pair of states(x,x') to start the game (should not choose the same states)");
-        Scanner sc1 = new Scanner(System.in);
-        String userPick1 = sc1.nextLine();
-        String[] userPickElements = userPick1.split(",");
-        if (userPickElements[0].equals(userPickElements[1])){
-            //if not, restart the game
-            System.out.println("Please choose two different start states!");
-            startGame(process);
-        }
-        if (searchRelation(userPick1,relations)){
-            //if the two states are bisimilar
-            System.out.println("Unfortunately, you lose the game! ");
-            startFailGameLoop(process,userPick1);
-
-        }else {
-            //if not
-            System.out.println("Congratulations, you win the game! ");
-            startWinGameLoop(process,userPick1);
-        }
-    }
-
-    public void startFailGameLoop(Process process, String startStates){
-        //get the bisimulation relation of process
-        Set<String> relations = process.computeBisimulation(process);
-        System.out.println("Would you like to continue to see how you lose or restart the game?(c,r)");
-        Scanner sc2 = new Scanner(System.in);
-        String userPick2 = sc2.nextLine();
-        if (userPick2.equals("c")){
-            startStates = pickStepForFailGame(process,startStates);
-            if (startStates == null){
-                System.out.println("That's why you lose.");
-            }else {
-                startFailGameLoop(process,startStates);
+        //make a check
+        try {
+            Scanner sc1 = new Scanner(System.in);
+            String userPick1 = sc1.nextLine();
+            String[] userPickElements = userPick1.split(",");
+            if (!searchStates(userPickElements[0], process.getStates()) || !searchStates(userPickElements[1], process.getStates())){
+                System.out.println("One or both of "+userPick1+" are not the states of this LTS!");
+                startGame(process);
+                return;
             }
-        }else if(userPick2.equals("r")){
+            //check whether the two states are the same
+            if (userPickElements[0].equals(userPickElements[1])){
+                //if not, restart the game
+                System.out.println("Please choose two different start states!");
+                startGame(process);
+                return;
+            }
+            //check whether the two states are bisimilar or not
+            if (process.searchRelation(userPick1,relations)){
+                //if the two states are bisimilar
+                System.out.println("Unfortunately, you lose the game! ");
+                continueFailedGame(userPick1);
+
+            }else {
+                //if not
+                System.out.println("Congratulations, you win the game! ");
+                continueWinedGame(userPick1);
+            }
+        }catch (ArrayIndexOutOfBoundsException aiofbe){
+            System.out.println("Please enter two states in format (x,x')!");
             startGame(process);
-        }else {
-            System.out.println("Please check the spell of your choose");
-            startFailGameLoop(process,startStates);
         }
     }
 
-    public String pickStepForFailGame(Process process, String startStates){
-        if(checkIfStatesHaveNoTarget(process,startStates)){
-            System.out.println("There is no steps that you can do from "+startStates+".");
-            return null;
+    public void continueFailedGame(String states){
+        String[] startStates = states.split(",");
+        //check if attacker already lose the game or not
+        if (this.checkIfStatesHaveNoTarget(this,states)){
+            //if have no target
+            System.out.println("There is no step that you can do from "+ states +"! That's why you lose the game!");
+            return;
         }
-        System.out.println("Please pick a step from ("+ startStates + "),format(source,action,target)");
-        Scanner sc3 = new Scanner(System.in);
-        String userPick3 = sc3.nextLine();
-        String[] userPick3Elements = userPick3.split(",");
-        Transition userPickTransition = new Transition(userPick3Elements[0],userPick3Elements[2],userPick3Elements[1]);
-        String[] startStatesArray = startStates.split(",");
-        Set<Transition> transitions = process.getTransitions();
-        if (searchTransition(userPickTransition,transitions) && searchStates(userPick3Elements[0],startStatesArray)){
-            Transition toolPickTransition = toolPickTransitionFail(process,startStates,userPickTransition);
-            if (toolPickTransition == null ){
-                System.out.println("No possible move left!");
-                return null;
-            }else {
-                if (userPickTransition.getDestination().equals(toolPickTransition.getDestination())){
-                    return null;
+        System.out.println("Pick one transition start from "+ states + " (source,action,target):");
+        try {
+            Scanner sc2 = new Scanner(System.in);
+            String userPick2 = sc2.nextLine();
+            String[] userPickElements = userPick2.split(",");
+            Transition userPickTransition = new Transition(userPickElements[0],userPickElements[2],userPickElements[1]);
+            if (!searchStartStates(userPickElements[0],startStates)){
+                System.out.println("The source "+userPickElements[0]+"of transition is not one of the start states on this step!");
+                continueFailedGame(states);
+                return;
+            }
+            if (!searchTransition(userPickTransition,this.getTransitions())){
+                System.out.println("Transition "+userPick2+" is not the transition of this LTS!");
+                continueFailedGame(states);
+                return;
+            }
+            Set<Transition> toolPickTransitionPossi = toolPlayFailedGame(states,userPickTransition);
+            //make a check of two situations
+            if (toolPickTransitionPossi.size() == 1){
+                //get the first element of toolTransitionPossibility
+                Iterator it = toolPickTransitionPossi.iterator();
+                Transition toolPickTransition = (Transition) it.next();
+                System.out.println("The tool can just choose one step now:");
+                for (Transition transition:toolPickTransitionPossi){
+                    System.out.println(transition.toString());
                 }
-                String nextStates = userPickTransition.getDestination()+","+toolPickTransition.getDestination();
-                return nextStates;
+                String next_states = userPickTransition.getDestination()+","+toolPickTransition.getDestination();
+                continueFailedGame(next_states);
+                return;
             }
-        }else {
-            System.out.println("Please check your input!");
-            pickStepForFailGame(process,startStates);
-        }
-        return null;
-    }
-
-    public Transition toolPickTransitionFail(Process process, String startState, Transition userPickTransition){
-        Set<Transition> transitions = process.getTransitions();
-        Set<Transition> toolPickPossibility = new HashSet<>();
-        //get the toolStartState
-        startState = startState.replaceAll(",","");
-        String toolStartState = startState.replaceAll(userPickTransition.getSource(),"");
-        for (Transition transition: transitions){
-            if (transition.getAction().equals(userPickTransition.getAction()) && transition.getSource().equals(toolStartState)) {
-                toolPickPossibility.add(transition);
-            }
-        }
-        if (toolPickPossibility.size()==0){
-            return null;
-        }else {
-            //get the first element of toolPickPossibility
-            Iterator it = toolPickPossibility.iterator();
-            return (Transition)it.next();
-        }
-
-    }
-
-    public void startWinGameLoop(Process process, String startStates){
-        //get the bisimulation relation of process
-        Set<String> relations = process.computeBisimulation(process);
-        System.out.println("Would you like to continue to see how you win or restart the game?(c,r)");
-        Scanner sc2 = new Scanner(System.in);
-        String userPick2 = sc2.nextLine();
-        if (userPick2.equals("c")){
-            startStates = pickStepForWinGame(process,startStates);
-            if (startStates == null){
-                System.out.println("That's why you win!");
-                //System.out.println("There is no steps that tool can do! That's why you win.");
-            }else {
-                startWinGameLoop(process,startStates);
-            }
-        }else if(userPick2.equals("r")){
-            startGame(process);
-        }else {
-            System.out.println("Please check the spell of your choose");
-            startWinGameLoop(process, startStates);
-        }
-    }
-
-    public String pickStepForWinGame(Process process, String startStates){
-        System.out.println("Please pick a step from ("+ startStates + "),format(source,action,target)");
-        Scanner sc3 = new Scanner(System.in);
-        String userPick3 = sc3.nextLine();
-        String[] userPick3Elements = userPick3.split(",");
-        Transition userPickTransition = new Transition(userPick3Elements[0],userPick3Elements[2],userPick3Elements[1]);
-        String[] startStatesArray = startStates.split(",");
-        Set<Transition> transitions = process.getTransitions();
-        if (searchTransition(userPickTransition,transitions) && searchStates(userPick3Elements[0],startStatesArray)){
-            Transition toolPickTransition = toolPickTransitionWin(process,startStates,userPickTransition);
-            if (toolPickTransition == null ){
-                return null;
-            }else {
-                if (userPickTransition.getDestination().equals(toolPickTransition.getDestination())){
-                    return null;
+            if (toolPickTransitionPossi.size() > 1){
+                System.out.println("The tool can choose the following steps now:");
+                for (Transition transition:toolPickTransitionPossi){
+                    System.out.println(transition.toString());
                 }
-                String nextStates = userPickTransition.getDestination()+","+toolPickTransition.getDestination();
-                return nextStates;
+                System.out.println("Let's see the following possibilities from states "+states);
+                //do each possibility of toolPickTransition
+                int i = 0; //counter
+                for (Transition toolPickTransition:toolPickTransitionPossi){
+                    String next_states = userPickTransition.getDestination()+","+toolPickTransition.getDestination();
+                    System.out.println("Situation"+i+" : Tool picks "+toolPickTransition.toString());
+                    continueFailedGame(next_states);
+                    i++;
+                }
+                return;
             }
-        }else {
-            System.out.println("Please check your input!");
-            pickStepForFailGame(process,startStates);
+
+        }catch (ArrayIndexOutOfBoundsException aiofbe){
+            System.out.println("Please enter a transition in format (x,a,x')!");
+            continueFailedGame(states);
         }
-        return null;
     }
 
-    public Transition toolPickTransitionWin(Process process, String startState, Transition userPickTransition){
-        if(checkIfStatesHaveNoTarget(process,startState)){
-            System.out.println("There is no steps that tool can do from "+startState+".");
-            return null;
-        }
-        Set<String> relations = process.computeBisimulation(process);
-        Set<Transition> transitions = process.getTransitions();
-        Set<Transition> toolPickPossibility = new HashSet<>();
-        //get the toolStartState
-        startState = startState.replaceAll(",","");
-        String toolStartState = startState.replaceAll(userPickTransition.getSource(),"");
+    public Set<Transition> toolPlayFailedGame(String states, Transition userPickTransition){
+        states = states.replaceAll(",","");
+        String toolSource = states.replace(userPickTransition.getSource(),"");
+        Set<String> toolTarget = new HashSet<>();
+        Set<Transition> toolTransition = new HashSet<>();
+        //get all possible y' from the bisimulation relation set
         for (String relation : relations){
-            String[] elements = relation.split(",");
-            if (elements[0].equals(userPickTransition.getDestination())){
-                Transition transition = new Transition(toolStartState,elements[1],userPickTransition.getAction());
-                toolPickPossibility.add(transition);
+            relation = relation.replaceAll(",","");
+            relation = relation.replaceAll(userPickTransition.getDestination(),"");
+            toolTarget.add(relation);
+        }
+        //get all possible x',a,y'
+        for (Transition transition: this.getTransitions()){
+            for (String target: toolTarget){
+                if (transition.getSource().equals(toolSource)&& transition.getAction().equals(userPickTransition.getAction()) &&transition.getDestination().equals(target)){
+                    toolTransition.add(transition);
+                }
+            }
+
+        }
+        return toolTransition;
+    }
+
+    public void continueWinedGame(String states){
+        String[] startStates = states.split(",");
+        //check if attacker already lose the game or not
+        System.out.println("Pick one transition start from "+ states + " (source,action,target):");
+        try {
+            Scanner sc2 = new Scanner(System.in);
+            String userPick2 = sc2.nextLine();
+            String[] userPickElements = userPick2.split(",");
+            Transition userPickTransition = new Transition(userPickElements[0],userPickElements[2],userPickElements[1]);
+            if (!searchStartStates(userPickElements[0],startStates)){
+                System.out.println("The source "+userPickElements[0]+"of transition is not one of the start states on this step!");
+                continueWinedGame(states);
+                return;
+            }
+            if (!searchTransition(userPickTransition,this.getTransitions())){
+                System.out.println("Transition "+userPick2+" is not the transition of this LTS!");
+                continueWinedGame(states);
+                return;
+            }
+            Set<Transition> toolPickTransitionPossi = toolPlayWinedGame(states,userPickTransition);
+            if (toolPickTransitionPossi.size() == 0){
+                String toolSource = states.replaceAll(",","");
+                toolSource = toolSource.replaceAll(userPickTransition.getSource(),"");
+                System.out.println("There is no step that tool can do from " + toolSource +"! That's why you win the game!" );
+                return;
+            }
+            System.out.println("The tool can choose the following steps now:");
+            for (Transition transition:toolPickTransitionPossi){
+                System.out.println(transition.toString());
+            }
+
+        }catch (ArrayIndexOutOfBoundsException aiofbe){
+            System.out.println("Please enter a transition in format (x,a,x')!");
+            continueWinedGame(states);
+        }
+    }
+
+    public Set<Transition> toolPlayWinedGame(String states, Transition userPickTransition){
+        states = states.replaceAll(",","");
+        String toolSource = states.replace(userPickTransition.getSource(),"");
+        //Set<String> toolTarget = new HashSet<>();
+        Set<Transition> toolTransition = new HashSet<>();
+        for (Transition transition: this.getTransitions()){
+            if (transition.getSource().equals(toolSource)&&transition.getAction().equals(userPickTransition)){
+                //toolTarget.add(transition.getDestination());
+                toolTransition.add(transition);
             }
         }
-        if (toolPickPossibility.size() == 0){
-            return null;
-        }else {
-            //get the first element of toolPickPossibility
-            Iterator it = toolPickPossibility.iterator();
-            return (Transition)it.next();
-        }
-
+        return toolTransition;
     }
+
 
     public static void main(String[] args){
         Process process = new Process();
@@ -207,7 +205,10 @@ public class BGame extends Process{
         try {
             file = new BufferedReader(new FileReader(args[0]));
         }catch (FileNotFoundException fnfe){
-            System.out.println("File cannot be found");
+            System.out.println("File cannot be found!");
+            System.exit(1);
+        }catch (ArrayIndexOutOfBoundsException aiofbe){
+            System.out.println("Please input your file name on the command line!");
             System.exit(1);
         }
         try {
@@ -219,11 +220,19 @@ public class BGame extends Process{
             process.setTransitions(transitions);
             process.setActions(actions);
             process.setStates(states);
-
         }catch (IOException io){
             System.out.println("Data store error");
         }
         BGame bGame = new BGame(process,process.computeBisimulation(process));
+        for (String data : bGame.getRelations()){
+            System.out.println(data);
+        }
+        System.out.println("Processing game...");
+        System.out.println("Game Start: Here are the transitions:");
+        System.out.println("Source   Action    Target(States labeled with 1 are the starting states.)");
+        for (Transition transition : process.getTransitions()){
+            System.out.println(transition.toString());
+        }
         bGame.startGame(process);
     }
 }
