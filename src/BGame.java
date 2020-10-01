@@ -65,6 +65,10 @@ public class BGame extends Process{
         }
     }
 
+    //function of showing the game while attacker loses
+    //The strategy of attacker fail the game
+    //1. There is no move that attacker could do
+    //2. All of the states of the system are picked for at least once
     public void continueFailedGame(String states,Set<String> goneState){
         String[] startStates = states.split(",");
         //check if attacker already lose the game or not
@@ -144,6 +148,8 @@ public class BGame extends Process{
         }
     }
 
+    //function: the strategy of tool pick when the attacker loses
+    //1.pick according to the bisimulation set
     public Set<Transition> toolPlayFailedGame(String states, Transition userPickTransition){
         states = states.replaceAll(",","");
         String toolSource = states.replace(userPickTransition.getSource(),"");
@@ -168,6 +174,9 @@ public class BGame extends Process{
         return toolTransition;
     }
 
+    //function of showing the game while attacker wins
+    //The strategy of attacker win the game
+    //1. There is no move that defender could do
     public void continueWinedGame(String states){
         String[] startStates = states.split(",");
         //check if attacker already lose the game or not
@@ -215,6 +224,8 @@ public class BGame extends Process{
         }
     }
 
+    //function: the strategy of tool pick when the attacker wins
+    //1.pick the transition with same action that attacker picks
     public Set<Transition> toolPlayWinedGame(String states, Transition userPickTransition){
         states = states.replaceAll(",","");
         String toolSource = states.replace(userPickTransition.getSource(),"");
@@ -233,6 +244,7 @@ public class BGame extends Process{
     public static void main(String[] args){
         Process process = new Process();
         BufferedReader file = null;
+        //try to compile a process object from the file that user inputs
         try {
             file = new BufferedReader(new FileReader(args[0]));
         }catch (FileNotFoundException fnfe){
@@ -254,6 +266,7 @@ public class BGame extends Process{
         }catch (IOException io){
             System.out.println("Data store error");
         }
+        //try to compile a BGame object using the process we just got
         BGame bGame = new BGame(process,process.computeBisimulation(process));
         for (String data : bGame.getRelations()){
             System.out.println(data);
